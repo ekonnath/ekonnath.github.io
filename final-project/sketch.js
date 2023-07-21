@@ -72,7 +72,7 @@ function draw() {
     rect(width - 24, 22, 25, 25);
     
     fill(daySky);
-    rect(width - 24, 22, 20, 20);
+    rect(width - 24, 22, 21, 21);
 
     fill(daySun); // Set the text color to black
     textSize(20); // Set the text size
@@ -87,7 +87,12 @@ function draw() {
     stroke(100);
     strokeWeight(2);
     line(0, height/4, width, height/4);
-    line(0, height/4 * 3, width, height/4 * 3);
+    
+    line(width/2-width/8, height/4, width/2-width/8, height/2);
+    line(width/2+width/8, height/4, width/2+width/8, height/2);
+    
+    line(0, height/2, width, height/2);
+    line(width/2, height/2, width/2, height);
   }
 
   noStroke();
@@ -103,14 +108,17 @@ function mousePressed() {
 
   if (showGuidelines) { // reset guidelines
     showGuidelines = false;
+
   } else if (mouseX >= width - 30 // show guidelines
     && mouseX < width
     && mouseY <= 30
     && mouseY > 0) {
     showGuidelines = true;
+
   } else if (isNight || isSceneTwo) { // reset scene trigger
     resetScene();
     resetReflection();
+
   } else if (mouseY < height/4 && !isNight) { // night trigger
     isNight = true;
     isBase = false;
@@ -119,14 +127,12 @@ function mousePressed() {
       transitionStartTime = millis();
       transitionInProgress = true;
     }
-  } else if (mouseY > height/4 * 3) { // scene 2 trigger
+
+  } else if (mouseY > height/4 && mouseY < height/2
+            && mouseX > width/3 && mouseX < width/3 * 2) { // scene 2 trigger
     isSceneTwo = true;
     isBase = false;
   }
-}
-
-function doubleClicked() {
-  showGuidelines = -showGuidelines;
 }
 
 /* scene triggers */
