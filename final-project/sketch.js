@@ -2,24 +2,28 @@
 let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
 let currentSky, currentOcean, currentSunMoon, currentSunMoonReflection;
 
+// showGuidelines
+let showGuidelines; 
+
 // scene check
-let isNight = false;
-let isSceneTwo = false;
+let isNight;
+let isSceneTwo;
+let isBase;
 
 // transition between day and night
-let transitionDuration = 2000; // 2000 milliseconds = 2 seconds
+let transitionDuration = 3500; // 1000 milliseconds = 1 seconds
 let transitionStartTime;
 let transitionInProgress = false;
 
 // reflection variables
 let reflectX1, reflectX2, reflectX3, reflectX4;
-let sunReflection, moonReflection;
+let sunReflection, moonReflection; // colors
 let reflectionHeight1, reflectionHeight2, reflectionHeight3, reflectionHeight4, reflectionSpeed;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  daySky = color(251, 233, 151); // Red
-  nightSky = color(0, 38, 77); // Blue
+  daySky = color(251, 233, 151); 
+  nightSky = color(0, 38, 77); 
 
   dayOcean = color(161, 212, 243);
   nightOcean = color(0, 77, 153);
@@ -30,6 +34,10 @@ function setup() {
 
   moonReflection = color(251, 233, 151, 100);
   sunReflection = color(242, 111, 6, 100);
+  reflectX1 = width / 4 * 1.5;
+  reflectX2 = width / 4 * 1.6;
+  reflectX3 = width / 4 * 1.7;
+  reflectX4 = width / 4 * 1.8;
   reflectionHeight1 = 0, reflectionHeight2 = 0, reflectionHeight3 = 0, reflectionHeight4 = 0;
   reflectionSpeed = 0.8;
 
@@ -38,21 +46,16 @@ function setup() {
   currentSunMoon = daySun;
   currentSunMoonReflection = sunReflection;
 
-  reflectX1 = width / 4 * 1.5;
-  reflectX2 = width / 4 * 1.6;
-  reflectX3 = width / 4 * 1.7;
-  reflectX4 = width / 4 * 1.8;
-
+  isNight = false;
+  isSceneTwo = false;
+  isBase = true;
+  showGuidelines = false;
 }
 
 function draw() {
   background(255);
   noStroke();
-
-  if (transitionInProgress) {
-    dayNightTransition();
-    // drawReflection();
-  }
+  rectMode(CORNER);
 
   fill(currentSky);
   rect(0, 0, width, height / 2);
@@ -63,60 +66,98 @@ function draw() {
   fill(currentSunMoon);
   arc(width / 2, height / 2, width / 4, width / 4, PI, 0);
 
+  if (isBase && !showGuidelines) {
+    rectMode(CENTER);
+    fill(dayOcean);
+    rect(width - 24, 23, 25, 25);
+    
+    fill(daySky);
+    rect(width - 24, 23, 20, 20);
+
+    fill(70); // Set the text color to black
+    textSize(20); // Set the text size
+    // textStyle(BOLD);
+    textFont('Helvetica');
+    text("?", width - 30, 30);
+  }
+
+  
+  // guidelines
+  if (showGuidelines) {
+    stroke(100);
+    strokeWeight(2);
+    line(0, height/4, width, height/4);
+    line(0, height/4 * 3, width, height/4 * 3);
+  }
+
+  noStroke();
+  // only one scene can be in progress
   if (isNight) {
     nightAnimations();
+  } else if (isSceneTwo) {
+    sceneTwoAnimations();
   }
-
-  if (isSceneTwo) {
-    songTwoAnimations();
-  }
-
 }
 
 function mousePressed() {
 
-  // trigger transition to night
-  if (!isNight && mouseY < width / 4) {
-    if (!transitionInProgress) {
-      transitionStartTime = millis();
-      transitionInProgress = true;
-    }
-  }
-
-  // trigger transition to day
-  if (isNight) {
-    if (!transitionInProgress) {
-      transitionStartTime = millis();
-      transitionInProgress = true;
-      resetReflection();
-    }
-  }
-
-  if (!isSceneTwo) {
-    if (mouseY > width / 2) {
-      isSceneTwo = true;
-    }
-  } else if (isSceneTwo) {
-    isSceneTwo = false;
+  if (showGuidelines) { // reset guidelines
+    showGuidelines = false;
+  } else if (mouseX >= width - 30 // show guidelines
+    && mouseX < width
+    && mouseY <= 30
+    && mouseY > 0) {
+    showGuidelines = true;
+  } else if (isNight || isSceneTwo) { // reset scene trigger
+    resetScene();
     resetReflection();
+  } else if (mouseY < height/4 && !isNight) { // night trigger
+    isNight = true;
+    isBase = false;
+
+    if (!transitionInProgress) { // trigger transition
+      transitionStartTime = millis();
+      transitionInProgress = true;
+    }
+  } else if (mouseY > height/4 * 3) { // scene 2 trigger
+    isSceneTwo = true;
+    isBase = false;
   }
+}
 
-
+function doubleClicked() {
+  showGuidelines = -showGuidelines;
 }
 
 /* scene triggers */
 
+function resetScene(scene) {
+  isNight = false;
+  isSceneTwo = false;
+
+  currentSky = lerpColor(currentSky, daySky, 1);
+  currentOcean = lerpColor(currentSky, dayOcean, 1);
+  currentSunMoon = lerpColor(currentSunMoon, daySun, 1);
+  currentSunMoonReflection = lerpColor(currentSunMoonReflection, sunReflection, 1);
+
+  isBase = true;
+}
+
 function nightAnimations() {
+
+  if (transitionInProgress) {
+    dayNightTransition();
+  }
+
+  // draw reflection
+  drawReflection();
+
   // draw starts
   drawStars();
 
-  // draw reflection in water
-  drawReflection();
-  reflectionMovement();
-
 }
 
-function songTwoAnimations() {
+function sceneTwoAnimations() {
   drawReflection();
 }
 
@@ -128,22 +169,16 @@ function dayNightTransition() {
   let elapsedTime = (millis() - transitionStartTime);
   let transitionProgress = constrain(elapsedTime / transitionDuration, 0, 1);
 
-  if (!isNight) { // If day, transition from day to night
+  if (isNight) { // If day, transition from day to night
     currentSky = lerpColor(daySky, nightSky, transitionProgress);
     currentOcean = lerpColor(dayOcean, nightOcean, transitionProgress);
     currentSunMoon = lerpColor(daySun, nightMoon, transitionProgress);
     currentSunMoonReflection = lerpColor(sunReflection, moonReflection, transitionProgress);
-  } else { // If nightk transtion from night to day
-    currentSky = lerpColor(nightSky, daySky, 1);
-    currentOcean = lerpColor(nightOcean, dayOcean, 1);
-    currentSunMoon = lerpColor(nightMoon, daySun, 1);
-    currentSunMoonReflection = lerpColor(moonReflection, sunReflection, 1);
-  }
+  } 
 
   // Check if the transition is complete
   if (transitionProgress === 1) {
     transitionInProgress = false;
-    isNight = !isNight;
   }
 }
 
@@ -156,19 +191,19 @@ function drawReflection() {
   rect(reflectX3, height / 2 + height / 8 * 2, width / 4 * 0.6, reflectionHeight3);
   rect(reflectX4, height / 2 + height / 8 * 3, width / 4 * 0.4, reflectionHeight4);
 
-  if (reflectionHeight1 < height / 8 && !transitionInProgress) {
+  if (reflectionHeight1 < height / 8) {
     reflectionHeight1 += reflectionSpeed;
   }
 
-  if (reflectionHeight1 >= height / 8 && !transitionInProgress && reflectionHeight2 < height / 8) {
+  if (reflectionHeight1 >= height / 8 && reflectionHeight2 < height / 8) {
     reflectionHeight2 += reflectionSpeed;
   }
 
-  if (reflectionHeight2 >= height / 8 && !transitionInProgress && reflectionHeight3 < height / 8) {
+  if (reflectionHeight2 >= height / 8 && reflectionHeight3 < height / 8) {
     reflectionHeight3 += reflectionSpeed;
   }
 
-  if (reflectionHeight3 >= height / 8 && !transitionInProgress && reflectionHeight4 < height / 8) {
+  if (reflectionHeight3 >= height / 8  && reflectionHeight4 < height / 8) {
     reflectionHeight4 += reflectionSpeed;
   }
 }
@@ -180,13 +215,10 @@ function resetReflection() {
   reflectionHeight4 = 0;
 }
 
-function reflectionMovement() {
-  // TODO
-}
-
 function drawStars() {
   fill(stars);
   noStroke();
+  
   // draw star
   push();
   translate(width * 0.28, height * 0.07);
