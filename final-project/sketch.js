@@ -2,8 +2,9 @@
 let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
 let currentSky, currentOcean, currentSunMoon, currentSunMoonReflection;
 
-// environment check
+// scene check
 let isNight = false;
+let isSceneTwo = false;
 
 // transition between day and night
 let transitionDuration = 2000; // 2000 milliseconds = 2 seconds
@@ -13,7 +14,7 @@ let transitionInProgress = false;
 // reflection variables
 let reflectX1, reflectX2, reflectX3, reflectX4;
 let sunReflection, moonReflection;
-let reflectionHeight, reflectionSpeed;
+let reflectionHeight1, reflectionHeight2, reflectionHeight3, reflectionHeight4, reflectionSpeed;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -29,7 +30,7 @@ function setup() {
 
   moonReflection = color(251, 233, 151, 100);
   sunReflection = color(242, 111, 6, 100);
-  reflectionHeight = 0;
+  reflectionHeight1 = 0, reflectionHeight2 = 0, reflectionHeight3 = 0, reflectionHeight4 = 0;
   reflectionSpeed = 0.8;
 
   currentSky = daySky;
@@ -37,10 +38,10 @@ function setup() {
   currentSunMoon = daySun;
   currentSunMoonReflection = sunReflection;
 
-  reflectX1 = width/4*1.5;
-  reflectX2 = width/4*1.6;
-  reflectX3 = width/4*1.7;
-  reflectX4 = width/4*1.8;
+  reflectX1 = width / 4 * 1.5;
+  reflectX2 = width / 4 * 1.6;
+  reflectX3 = width / 4 * 1.7;
+  reflectX4 = width / 4 * 1.8;
 
 }
 
@@ -50,6 +51,7 @@ function draw() {
 
   if (transitionInProgress) {
     dayNightTransition();
+    // drawReflection();
   }
 
   fill(currentSky);
@@ -59,57 +61,50 @@ function draw() {
   rect(0, height / 2, width, height / 2);
 
   fill(currentSunMoon);
-  arc(width/2, height/2, width/4, width/4, PI, 0);
+  arc(width / 2, height / 2, width / 4, width / 4, PI, 0);
 
   if (isNight) {
     nightAnimations();
+  }
+
+  if (isSceneTwo) {
+    songTwoAnimations();
   }
 
 }
 
 function mousePressed() {
 
-  if (!isNight && mouseY < width/4){
+  // trigger transition to night
+  if (!isNight && mouseY < width / 4) {
     if (!transitionInProgress) {
       transitionStartTime = millis();
       transitionInProgress = true;
     }
   }
- 
+
+  // trigger transition to day
   if (isNight) {
     if (!transitionInProgress) {
       transitionStartTime = millis();
       transitionInProgress = true;
-      reflectionHeight = 0;
+      resetReflection();
     }
   }
 
+  if (!isSceneTwo) {
+    if (mouseY > width / 2) {
+      isSceneTwo = true;
+    }
+  } else if (isSceneTwo) {
+    isSceneTwo = false;
+    resetReflection();
+  }
+
+
 }
 
-function dayNightTransition() {
-
-    // Calculate the progress of the transition (0 to 1)
-    let elapsedTime = (millis() - transitionStartTime);
-    let transitionProgress = constrain(elapsedTime / transitionDuration, 0, 1);
-
-    if (!isNight) { // If day, transition from day to night
-      currentSky = lerpColor(daySky, nightSky, transitionProgress);
-      currentOcean = lerpColor(dayOcean, nightOcean, transitionProgress);
-      currentSunMoon = lerpColor(daySun, nightMoon, transitionProgress);
-      currentSunMoonReflection = lerpColor(sunReflection, moonReflection, transitionProgress);
-    } else { // If nightk transtion from night to day
-      currentSky = lerpColor(nightSky, daySky, 1);
-      currentOcean = lerpColor(nightOcean, dayOcean, 1);
-      currentSunMoon = lerpColor(nightMoon, daySun, 1);
-      currentSunMoonReflection = lerpColor(moonReflection, sunReflection, 1);
-    }
-
-    // Check if the transition is complete
-    if (transitionProgress === 1) {
-      transitionInProgress = false;
-      isNight = !isNight;
-    }
-}
+/* scene triggers */
 
 function nightAnimations() {
   // draw starts
@@ -121,18 +116,68 @@ function nightAnimations() {
 
 }
 
+function songTwoAnimations() {
+  drawReflection();
+}
+
+/* functional animations */
+
+function dayNightTransition() {
+
+  // Calculate the progress of the transition (0 to 1)
+  let elapsedTime = (millis() - transitionStartTime);
+  let transitionProgress = constrain(elapsedTime / transitionDuration, 0, 1);
+
+  if (!isNight) { // If day, transition from day to night
+    currentSky = lerpColor(daySky, nightSky, transitionProgress);
+    currentOcean = lerpColor(dayOcean, nightOcean, transitionProgress);
+    currentSunMoon = lerpColor(daySun, nightMoon, transitionProgress);
+    currentSunMoonReflection = lerpColor(sunReflection, moonReflection, transitionProgress);
+  } else { // If nightk transtion from night to day
+    currentSky = lerpColor(nightSky, daySky, 1);
+    currentOcean = lerpColor(nightOcean, dayOcean, 1);
+    currentSunMoon = lerpColor(nightMoon, daySun, 1);
+    currentSunMoonReflection = lerpColor(moonReflection, sunReflection, 1);
+  }
+
+  // Check if the transition is complete
+  if (transitionProgress === 1) {
+    transitionInProgress = false;
+    isNight = !isNight;
+  }
+}
+
 function drawReflection() {
 
   fill(currentSunMoonReflection);
-  
-  rect(reflectX1, height/2, width/4, reflectionHeight);
-  rect(reflectX2, height/2+height/8, width/4*0.8, reflectionHeight);
-  rect(reflectX3, height/2+height/8*2, width/4*0.6, reflectionHeight);
-  rect(reflectX4, height/2+height/8*3, width/4*0.4, reflectionHeight);
 
-  if (reflectionHeight < height/8 && !transitionInProgress) {
-    reflectionHeight += reflectionSpeed;
-  } 
+  rect(reflectX1, height / 2, width / 4, reflectionHeight1);
+  rect(reflectX2, height / 2 + height / 8, width / 4 * 0.8, reflectionHeight2);
+  rect(reflectX3, height / 2 + height / 8 * 2, width / 4 * 0.6, reflectionHeight3);
+  rect(reflectX4, height / 2 + height / 8 * 3, width / 4 * 0.4, reflectionHeight4);
+
+  if (reflectionHeight1 < height / 8 && !transitionInProgress) {
+    reflectionHeight1 += reflectionSpeed;
+  }
+
+  if (reflectionHeight1 >= height / 8 && !transitionInProgress && reflectionHeight2 < height / 8) {
+    reflectionHeight2 += reflectionSpeed;
+  }
+
+  if (reflectionHeight2 >= height / 8 && !transitionInProgress && reflectionHeight3 < height / 8) {
+    reflectionHeight3 += reflectionSpeed;
+  }
+
+  if (reflectionHeight3 >= height / 8 && !transitionInProgress && reflectionHeight4 < height / 8) {
+    reflectionHeight4 += reflectionSpeed;
+  }
+}
+
+function resetReflection() {
+  reflectionHeight1 = 0;
+  reflectionHeight2 = 0;
+  reflectionHeight3 = 0;
+  reflectionHeight4 = 0;
 }
 
 function reflectionMovement() {
