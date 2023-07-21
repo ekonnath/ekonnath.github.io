@@ -68,13 +68,13 @@ function draw() {
 
   if (isBase && !showGuidelines) {
     rectMode(CENTER);
-    fill(dayOcean);
-    rect(width - 24, 23, 25, 25);
+    fill(daySun);
+    rect(width - 24, 22, 25, 25);
     
     fill(daySky);
-    rect(width - 24, 23, 20, 20);
+    rect(width - 24, 22, 20, 20);
 
-    fill(70); // Set the text color to black
+    fill(daySun); // Set the text color to black
     textSize(20); // Set the text size
     // textStyle(BOLD);
     textFont('Helvetica');
