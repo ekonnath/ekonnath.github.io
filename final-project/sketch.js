@@ -1,14 +1,16 @@
 // environment colors
 let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
-let currentSky, currentOcean, currentSunMoon, currentSunMoonReflection;
+let currentSky, currentOcean, currentSunMoon, currentReflection;
+let cloudySky, cloudyOcean, cloudySun, cloudyReflection;
 
 // showGuidelines
 let showGuidelines; 
 
 // scene check
+let isBase;
 let isNight;
 let isSceneTwo;
-let isBase;
+let isSceneThree;
 
 // transition between day and night
 let transitionDuration = 3500; // 1000 milliseconds = 1 seconds
@@ -17,23 +19,26 @@ let transitionInProgress = false;
 
 // reflection variables
 let reflectX1, reflectX2, reflectX3, reflectX4;
-let sunReflection, moonReflection; // colors
+let dayReflection, nightReflection; // colors
 let reflectionHeight1, reflectionHeight2, reflectionHeight3, reflectionHeight4, reflectionSpeed;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   daySky = color(251, 233, 151); 
-  nightSky = color(0, 38, 77); 
-
   dayOcean = color(161, 212, 243);
-  nightOcean = color(0, 77, 153);
-
   daySun = color(242, 111, 6);
+  dayReflection = color(242, 111, 6, 100);
+  
+  nightSky = color(0, 38, 77); 
+  nightOcean = color(0, 77, 153);
   nightMoon = color(251, 233, 151);
+  nightReflection = color(251, 233, 151, 100);
   stars = color(251, 233, 151, transitionInProgress);
 
-  moonReflection = color(251, 233, 151, 100);
-  sunReflection = color(242, 111, 6, 100);
+  cloudySky = color(217, 215, 208);
+  cloudyOcean = color(118, 147, 166);
+  cloudySun = color(255, 246, 201);
+
   reflectX1 = width / 4 * 1.5;
   reflectX2 = width / 4 * 1.6;
   reflectX3 = width / 4 * 1.7;
@@ -44,12 +49,14 @@ function setup() {
   currentSky = daySky;
   currentOcean = dayOcean;
   currentSunMoon = daySun;
-  currentSunMoonReflection = sunReflection;
+  currentReflection = dayReflection;
 
+  showGuidelines = false;
+  isBase = true;
   isNight = false;
   isSceneTwo = false;
-  isBase = true;
-  showGuidelines = false;
+  isSceneThree = false;
+
 }
 
 function draw() {
@@ -93,6 +100,7 @@ function draw() {
     
     line(0, height/2, width, height/2);
     line(width/2, height/2, width/2, height);
+
   }
 
   noStroke();
@@ -101,6 +109,8 @@ function draw() {
     nightAnimations();
   } else if (isSceneTwo) {
     sceneTwoAnimations();
+  } else if (isSceneThree) {
+    sceneThreeAnimations();
   }
 }
 
@@ -115,7 +125,7 @@ function mousePressed() {
     && mouseY > 0) {
     showGuidelines = true;
 
-  } else if (isNight || isSceneTwo) { // reset scene trigger
+  } else if (isNight || isSceneTwo || isSceneThree) { // reset scene trigger
     resetScene();
     resetReflection();
 
@@ -132,6 +142,15 @@ function mousePressed() {
             && mouseX > width/3 && mouseX < width/3 * 2) { // scene 2 trigger
     isSceneTwo = true;
     isBase = false;
+  } else if (mouseX < width/2-width/8 && mouseX > 0
+  && mouseY < height/2 && mouseY > height/4) { // scene 3 trigger
+    isSceneThree = true;
+    isBase = false;
+
+    if (!transitionInProgress) { // trigger transition
+      transitionStartTime = millis();
+      transitionInProgress = true;
+    }
   }
 }
 
@@ -140,11 +159,12 @@ function mousePressed() {
 function resetScene(scene) {
   isNight = false;
   isSceneTwo = false;
+  isSceneThree = false;
 
   currentSky = lerpColor(currentSky, daySky, 1);
   currentOcean = lerpColor(currentSky, dayOcean, 1);
   currentSunMoon = lerpColor(currentSunMoon, daySun, 1);
-  currentSunMoonReflection = lerpColor(currentSunMoonReflection, sunReflection, 1);
+  currentReflection = lerpColor(currentReflection, dayReflection, 1);
 
   isBase = true;
 }
@@ -153,6 +173,7 @@ function nightAnimations() {
 
   if (transitionInProgress) {
     dayNightTransition();
+    //colorTransition(nightSky, nightOcean, nightMoon, moonReflection);
   }
 
   // draw reflection
@@ -167,6 +188,12 @@ function sceneTwoAnimations() {
   drawReflection();
 }
 
+function sceneThreeAnimations() {
+  if (transitionInProgress) {
+    dayNightTransition();
+  }
+}
+
 /* functional animations */
 
 function dayNightTransition() {
@@ -179,8 +206,12 @@ function dayNightTransition() {
     currentSky = lerpColor(daySky, nightSky, transitionProgress);
     currentOcean = lerpColor(dayOcean, nightOcean, transitionProgress);
     currentSunMoon = lerpColor(daySun, nightMoon, transitionProgress);
-    currentSunMoonReflection = lerpColor(sunReflection, moonReflection, transitionProgress);
-  } 
+    currentReflection = lerpColor(dayReflection, nightReflection, transitionProgress);
+  } else if (isSceneThree) {
+    currentSky = lerpColor(daySky, cloudySky, transitionProgress);
+    currentOcean = lerpColor(dayOcean, cloudyOcean, transitionProgress);
+    currentSunMoon = lerpColor(daySun, cloudySun, transitionProgress);
+  }
 
   // Check if the transition is complete
   if (transitionProgress === 1) {
@@ -190,7 +221,7 @@ function dayNightTransition() {
 
 function drawReflection() {
 
-  fill(currentSunMoonReflection);
+  fill(currentReflection);
 
   rect(reflectX1, height / 2, width / 4, reflectionHeight1);
   rect(reflectX2, height / 2 + height / 8, width / 4 * 0.8, reflectionHeight2);
