@@ -27,6 +27,14 @@ let reflectionHeight1, reflectionHeight2, reflectionHeight3, reflectionHeight4, 
 let drops = [];
 let numberOfDrops = 500;
 
+let bird1X = -50;
+let bird1Y = 100;
+let bird1YMax = 110;
+let bird1YMin = 90;
+let bird1YFlap = 0;
+let birdSpeed;
+let birdUp = false;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   daySky = color(251, 233, 151); 
@@ -70,6 +78,8 @@ function setup() {
   for (let i = 0; i < numberOfDrops; i++) {
     drops.push(new Raindrop());
   }
+
+  birdSpeed = random(1,4);
 
 }
 
@@ -197,6 +207,7 @@ function nightAnimations() {
 
 function sceneTwoAnimations() {
   drawReflection();
+  animateBirds();
 }
 
 function sceneThreeAnimations() {
@@ -211,7 +222,6 @@ function sceneFourAnimations() {
   if (transitionInProgress) {
     colorTransition(discoSky, discoOcean, discoSun, currentReflection);
   }
-
 
   drawDisco();
 
@@ -410,4 +420,59 @@ class Raindrop {
   resetRain() {
     this.y = random(-400, -100);
   }
+}
+
+function animateBirds() {
+  bird1X += birdSpeed;
+
+  drawBird(bird1X, bird1Y);
+
+  if (bird1Y == bird1YMax) {
+    birdUp = false;
+  } else if (bird1Y == bird1YMin) {
+    birdUp = true;
+  }
+
+  if (birdUp) {
+    bird1Y++;
+    bird1YFlap = bird1Y - 22;
+  } else if(!birdUp) {
+    bird1Y--;
+    bird1YFlap = bird1Y + 30;
+  }
+
+  if (bird1X > width + 50) {
+    bird1X = -50;
+    birdSpeed = random(1,4);
+  }
+}
+
+function drawBird(x, y) {
+      
+  fill(255);
+  stroke(0.2);
+  rect(x, y, 30, 22); // body
+  
+  rect(x+30, y-10, 20, 32); // head/neck
+  
+  stroke(2);
+  triangle(x, y, x+30, y, x+30, bird1YFlap); // wing
+  
+  triangle(x, y, x-10, y, x, y+10) // tail
+  
+  triangle(x+50, y+10, x+50, y, x+60, y) // beak
+  
+  // eye
+  rect(x+45, y-10, 5,10);
+  
+  // eyeball
+  fill(0);
+  rect(x+48, y-5, 2,5);
+  
+  // speed tail
+  // line(x-30, y+10, x-10, y+10);
+  // line(x-20, y+15, x-10, y+15);
+  // line(x-30, y+20, x-10, y+20);
+  
+
 }
