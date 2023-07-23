@@ -22,6 +22,9 @@ let reflectX1, reflectX2, reflectX3, reflectX4;
 let dayReflection, nightReflection; // colors
 let reflectionHeight1, reflectionHeight2, reflectionHeight3, reflectionHeight4, reflectionSpeed;
 
+let drops = [];
+let numberOfDrops = 500;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   daySky = color(251, 233, 151); 
@@ -33,7 +36,7 @@ function setup() {
   nightOcean = color(0, 77, 153);
   nightMoon = color(251, 233, 151);
   nightReflection = color(251, 233, 151, 100);
-  stars = color(251, 233, 151, transitionInProgress);
+  stars = color(251, 233, 151);
 
   cloudySky = color(217, 215, 208);
   cloudyOcean = color(118, 147, 166);
@@ -56,6 +59,10 @@ function setup() {
   isNight = false;
   isSceneTwo = false;
   isSceneThree = false;
+
+  for (let i = 0; i < numberOfDrops; i++) {
+    drops.push(new Raindrop());
+  }
 
 }
 
@@ -111,6 +118,7 @@ function draw() {
     sceneTwoAnimations();
   } else if (isSceneThree) {
     sceneThreeAnimations();
+
   }
 }
 
@@ -125,7 +133,7 @@ function mousePressed() {
     && mouseY > 0) {
     showGuidelines = true;
 
-  } else if (isNight || isSceneTwo || isSceneThree) { // reset scene trigger
+  } else if ((isNight || isSceneTwo || isSceneThree) && !transitionInProgress) { // reset scene trigger
     resetScene();
     resetReflection();
 
@@ -155,24 +163,10 @@ function mousePressed() {
 }
 
 /* scene triggers */
-
-function resetScene(scene) {
-  isNight = false;
-  isSceneTwo = false;
-  isSceneThree = false;
-
-  currentSky = lerpColor(currentSky, daySky, 1);
-  currentOcean = lerpColor(currentSky, dayOcean, 1);
-  currentSunMoon = lerpColor(currentSunMoon, daySun, 1);
-  currentReflection = lerpColor(currentReflection, dayReflection, 1);
-
-  isBase = true;
-}
-
 function nightAnimations() {
 
   if (transitionInProgress) {
-    dayNightTransition();
+    colorTransition(nightSky, nightOcean, nightMoon, nightReflection);
     //colorTransition(nightSky, nightOcean, nightMoon, moonReflection);
   }
 
@@ -190,28 +184,39 @@ function sceneTwoAnimations() {
 
 function sceneThreeAnimations() {
   if (transitionInProgress) {
-    dayNightTransition();
+    colorTransition(cloudySky, cloudyOcean, cloudySun, currentReflection);
   }
+
+  toggleRain(true);
+}
+
+function resetScene(scene) {
+  isNight = false;
+  isSceneTwo = false;
+  isSceneThree = false;
+
+  currentSky = lerpColor(currentSky, daySky, 1);
+  currentOcean = lerpColor(currentSky, dayOcean, 1);
+  currentSunMoon = lerpColor(currentSunMoon, daySun, 1);
+  currentReflection = lerpColor(currentReflection, dayReflection, 1);
+
+  isBase = true;
+
+  toggleRain(false);
+  
 }
 
 /* functional animations */
-
-function dayNightTransition() {
+function colorTransition(newSky, newOcean, newSunMoon, newReflection) {
 
   // Calculate the progress of the transition (0 to 1)
   let elapsedTime = (millis() - transitionStartTime);
   let transitionProgress = constrain(elapsedTime / transitionDuration, 0, 1);
 
-  if (isNight) { // If day, transition from day to night
-    currentSky = lerpColor(daySky, nightSky, transitionProgress);
-    currentOcean = lerpColor(dayOcean, nightOcean, transitionProgress);
-    currentSunMoon = lerpColor(daySun, nightMoon, transitionProgress);
-    currentReflection = lerpColor(dayReflection, nightReflection, transitionProgress);
-  } else if (isSceneThree) {
-    currentSky = lerpColor(daySky, cloudySky, transitionProgress);
-    currentOcean = lerpColor(dayOcean, cloudyOcean, transitionProgress);
-    currentSunMoon = lerpColor(daySun, cloudySun, transitionProgress);
-  }
+  currentSky = lerpColor(daySky, newSky, transitionProgress);
+  currentOcean = lerpColor(dayOcean, newOcean, transitionProgress);
+  currentSunMoon = lerpColor(daySun, newSunMoon, transitionProgress);
+  currentReflection = lerpColor(dayReflection, newReflection, transitionProgress);
 
   // Check if the transition is complete
   if (transitionProgress === 1) {
@@ -318,4 +323,47 @@ function drawStars() {
   rotate(frameCount / 95.0);
   rect(10, 0, 5, 5);
   pop();
+}
+
+function toggleRain(rainToggled) {
+
+  if (rainToggled) {
+    for (let i = 0; i < drops.length; i++) {
+      drops[i].fall();
+      drops[i].display();
+    }
+  } else if (!rainToggled) {
+    for (let i = 0; i < drops.length; i++) {
+      drops[i].resetRain();
+    }
+  }
+  
+}
+
+class Raindrop {
+  constructor() {
+    this.x = random(width);
+    this.y = random(-400, -100);
+    this.speed = random(2, 5);
+    this.length = random(10, 20);
+  }
+
+  fall() {
+    this.y += this.speed;
+    if (this.y > height) {
+      this.y = random(-400, -100);
+      this.x = random(width);
+    }
+  }
+
+  display() {
+    strokeCap(SQUARE);
+    stroke(0, 100, 200); // Blue color
+    strokeWeight(1.2);
+    line(this.x, this.y, this.x, this.y + this.length);
+  }
+
+  resetRain() {
+    this.y = random(-400, -100);
+  }
 }
