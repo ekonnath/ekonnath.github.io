@@ -2,6 +2,7 @@
 let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
 let currentSky, currentOcean, currentSunMoon, currentReflection;
 let cloudySky, cloudyOcean, cloudySun, cloudyReflection;
+let discoSky, discoOcean, discoSun;
 
 // showGuidelines
 let showGuidelines; 
@@ -11,6 +12,7 @@ let isBase;
 let isNight;
 let isSceneTwo;
 let isSceneThree;
+let isSceneFour;
 
 // transition between day and night
 let transitionDuration = 3500; // 1000 milliseconds = 1 seconds
@@ -42,6 +44,10 @@ function setup() {
   cloudyOcean = color(118, 147, 166);
   cloudySun = color(255, 246, 201);
 
+  discoSky = color(0, 0, 0);
+  discoOcean = color(154, 71, 255);
+  discoSun = color(164, 243, 245);
+
   reflectX1 = width / 4 * 1.5;
   reflectX2 = width / 4 * 1.6;
   reflectX3 = width / 4 * 1.7;
@@ -59,6 +65,7 @@ function setup() {
   isNight = false;
   isSceneTwo = false;
   isSceneThree = false;
+  isSceneFour = false;
 
   for (let i = 0; i < numberOfDrops; i++) {
     drops.push(new Raindrop());
@@ -118,7 +125,8 @@ function draw() {
     sceneTwoAnimations();
   } else if (isSceneThree) {
     sceneThreeAnimations();
-
+  } else if (isSceneFour) {
+    sceneFourAnimations();
   }
 }
 
@@ -133,7 +141,7 @@ function mousePressed() {
     && mouseY > 0) {
     showGuidelines = true;
 
-  } else if ((isNight || isSceneTwo || isSceneThree) && !transitionInProgress) { // reset scene trigger
+  } else if ((isNight || isSceneTwo || isSceneThree || isSceneFour) && !transitionInProgress) { // reset scene trigger
     resetScene();
     resetReflection();
 
@@ -159,7 +167,16 @@ function mousePressed() {
       transitionStartTime = millis();
       transitionInProgress = true;
     }
-  }
+  } else if (mouseX < width && mouseX > width/2+width/8 
+    && mouseY < height/2 && mouseY > height/4) {
+      isSceneFour = true;
+      isBase = false;
+
+      if (!transitionInProgress) { // trigger transition
+        transitionStartTime = millis();
+        transitionInProgress = true;
+      }
+    }
 }
 
 /* scene triggers */
@@ -190,10 +207,26 @@ function sceneThreeAnimations() {
   toggleRain(true);
 }
 
+function sceneFourAnimations() {
+  if (transitionInProgress) {
+    colorTransition(discoSky, discoOcean, discoSun, currentReflection);
+  }
+
+
+  drawDisco();
+
+  fill(currentOcean);
+  rect(0, height / 2, width, height / 2);
+
+  fill(currentSunMoon);
+  arc(width / 2, height / 2, width / 4, width / 4, PI, 0);
+}
+
 function resetScene(scene) {
   isNight = false;
   isSceneTwo = false;
   isSceneThree = false;
+  isSceneFour = false;
 
   currentSky = lerpColor(currentSky, daySky, 1);
   currentOcean = lerpColor(currentSky, dayOcean, 1);
@@ -323,6 +356,17 @@ function drawStars() {
   rotate(frameCount / 95.0);
   rect(10, 0, 5, 5);
   pop();
+}
+
+function drawDisco() {
+  if (!transitionInProgress) {
+    for (var x = 0; x <= width; x += 50) {
+      for (var y = 0; y <= height/2; y += 50) {
+          fill (random(255), 0, random(255));
+          ellipse(x, y, 25, 25);
+        }
+    }
+  }
 }
 
 function toggleRain(rainToggled) {
