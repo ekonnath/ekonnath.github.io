@@ -39,7 +39,7 @@ let bird1YFlap = 0;
 let birdSpeed;
 let birdUp = false;
 
-let bird1, bird2, bird3;
+let bird1, bird2, bird3, bird4;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -100,11 +100,16 @@ function setup() {
     drops.push(new Raindrop());
   }
 
-  birdSpeed = random(1,4);
+  bird1 = new Bird(-50, height*0.1, random(10, 40));
+  bird2 = new Bird(-50, height*0.2, random(10, 40));
+  bird3 = new Bird(-50, height*0.3, random(10, 40));
+  bird4 = new Bird(-50, height*0.4, random(10, 40));
 
-  bird1 = new Bird(-50, height/4-40, 30, 22);
-  bird2 = new Bird(-50, height/4+20, 30, 22);
-  bird3 = new Bird(-50, height/4-80, 30, 22);
+
+  // bird1 = new Bird(-50, height/4-40, 30, 22);
+  // bird2 = new Bird(-50, height/4+20, 30, 22);
+  // bird3 = new Bird(-50, height/4-80, 30, 22);
+  
   
 }
 
@@ -234,7 +239,6 @@ function nightAnimations() {
   drawReflection();
 
   // draw starts
-  // drawStars();
   star1.drawStar();
   star2.drawStar();
   star3.drawStar();
@@ -244,8 +248,7 @@ function nightAnimations() {
   star7.drawStar();
   star8.drawStar();
   star9.drawStar();
-
-
+  
 }
 
 function sceneTwoAnimations() {
@@ -259,6 +262,7 @@ function sceneTwoAnimations() {
   bird1.animation();
   bird2.animation();
   bird3.animation();
+  bird4.animation();
   
 }
 
@@ -434,11 +438,11 @@ class Raindrop {
 }
 
 class Bird {
-  constructor(x, y, width, height) {
+  constructor(x, y, birdWidth) {
     this.birdX = x;
     this.birdY = y
-    this.birdWidth = width;
-    this.birdHeight = height;
+    this.birdWidth = birdWidth;
+    this.birdHeight = birdWidth/2;
 
     this.birdYMax = this.birdY + 10;
     this.birdYMin = this.birdY - 10
@@ -461,10 +465,10 @@ class Bird {
 
     if (this.birdUp) {
       this.birdY++;
-      this.flapY = this.birdY - 22;
+      this.flapY = this.birdY - this.birdHeight*1.4;
     } else if(!this.birdUp) {
       this.birdY--;
-      this.flapY = this.birdY + 30;
+      this.flapY = this.birdY + this.birdHeight*1.7;
     }
 
     if (this.birdX > width + 50) {
@@ -476,28 +480,49 @@ class Bird {
   drawBird() {
     fill(255);
     stroke(0);
+    
     // body
     rect(this.birdX, this.birdY, this.birdWidth, this.birdHeight);
-
+    
     // head/neck
-    rect(this.birdX + this.birdWidth, this.birdY-10, 20, 32);
-
-    //wing
+    rect(this.birdX + this.birdWidth, this.birdY - this.birdHeight/2, this.birdWidth/2.5, this.birdHeight * 1.5)
+    
+    // wing
     triangle(this.birdX, this.birdY, this.birdX+this.birdWidth, this.birdY, this.birdX+this.birdWidth, this.flapY);
-
+    
     // tail
-    triangle(this.birdX, this.birdY, this.birdX-10, this.birdY, this.birdX, this.birdY+10);
-    // rect(this.birdX-8, this.birdY, 8, 5);
-
+    rect(this.birdX, this.birdY, this.birdWidth * -.2, this.birdHeight * 0.3);
+    
     // beak
-    triangle(this.birdX+this.birdWidth+20, this.birdY+10, this.birdX+this.birdWidth+20, this.birdY, this.birdX+this.birdWidth+30, this.birdY);
-
+    rect(this.birdX + this.birdWidth + this.birdWidth/2.5, this.birdY, this.birdWidth*.2, this.birdHeight*.3)
+    
     // eye
-    rect(this.birdX+this.birdWidth+15, this.birdY-10, 5, 10);
-
-    // eyeball
+    
+  
+    rect(this.birdX + this.birdWidth + this.birdWidth/2.5,   this.birdY - this.birdHeight*0.15, 
+         -this.birdWidth*0.1,
+         -this.birdHeight*0.2);
+    
     fill(0);
-    rect(this.birdX+48, this.birdY-5, 2, 5);
+    rect(this.birdX + this.birdWidth + this.birdWidth/2.5,   this.birdY - this.birdHeight*0.15, -this.birdWidth*0.05, -this.birdHeight*.1);
+    
+   if (this.birdSpeed >= 3) {
+    line(this.birdX - this.birdWidth*0.9,
+         this.birdY + this.birdHeight*0.4, 
+         this.birdX - this.birdWidth*0.4, 
+         this.birdY + this.birdHeight*0.4);
+     
+     line(this.birdX - this.birdWidth*0.7,
+         this.birdY + this.birdHeight*0.6, 
+         this.birdX - this.birdWidth*0.4, 
+         this.birdY + this.birdHeight*0.6);
+     
+     line(this.birdX - this.birdWidth*0.9,
+         this.birdY + this.birdHeight*0.8, 
+         this.birdX - this.birdWidth*0.4, 
+         this.birdY + this.birdHeight*0.8);
+     
+  }
 
   }
 }
