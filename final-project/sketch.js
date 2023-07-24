@@ -1,8 +1,10 @@
 // environment colors
-let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
 let currentSky, currentOcean, currentSunMoon, currentReflection;
+
+let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
 let cloudySky, cloudyOcean, cloudySun, cloudyReflection;
 let discoSky, discoOcean, discoSun;
+let setSky, setOcean, setSun, setReflection;
 
 // showGuidelines
 let showGuidelines; 
@@ -35,6 +37,8 @@ let bird1YFlap = 0;
 let birdSpeed;
 let birdUp = false;
 
+let bird1, bird2, bird3;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   daySky = color(251, 233, 151); 
@@ -55,6 +59,11 @@ function setup() {
   discoSky = color(0, 0, 0);
   discoOcean = color(154, 71, 255);
   discoSun = color(164, 243, 245);
+
+  setSky = color(250, 209, 120,180);
+  setOcean = color(2, 31, 105);
+  setSun = color(207, 9, 2);
+  setReflection = (207, 9, 2, 100);
 
   reflectX1 = width / 4 * 1.5;
   reflectX2 = width / 4 * 1.6;
@@ -81,6 +90,10 @@ function setup() {
 
   birdSpeed = random(1,4);
 
+  bird1 = new Bird(-50, height/4-40, 30, 22);
+  bird2 = new Bird(-50, height/4+20, 30, 22);
+  bird3 = new Bird(-50, height/4-80, 30, 22);
+  
 }
 
 function draw() {
@@ -155,7 +168,7 @@ function mousePressed() {
     resetScene();
     resetReflection();
 
-  } else if (mouseY < height/4 && !isNight) { // night trigger
+  } else if (mouseY < height/4 && isBase) { // night trigger
     isNight = true;
     isBase = false;
 
@@ -164,12 +177,20 @@ function mousePressed() {
       transitionInProgress = true;
     }
 
-  } else if (mouseY > height/4 && mouseY < height/2
-            && mouseX > width/3 && mouseX < width/3 * 2) { // scene 2 trigger
+  } else if ((mouseY > height/4 && mouseY < height/2
+            && mouseX > width/3 && mouseX < width/3 * 2) 
+            && isBase) { // scene 2 trigger
     isSceneTwo = true;
     isBase = false;
-  } else if (mouseX < width/2-width/8 && mouseX > 0
-  && mouseY < height/2 && mouseY > height/4) { // scene 3 trigger
+
+    if (!transitionInProgress) { // trigger transition
+      transitionStartTime = millis();
+      transitionInProgress = true;
+    }
+
+  } else if ((mouseX < width/2-width/8 && mouseX > 0
+  && mouseY < height/2 && mouseY > height/4)
+  && isBase) { // scene 3 trigger
     isSceneThree = true;
     isBase = false;
 
@@ -177,8 +198,8 @@ function mousePressed() {
       transitionStartTime = millis();
       transitionInProgress = true;
     }
-  } else if (mouseX < width && mouseX > width/2+width/8 
-    && mouseY < height/2 && mouseY > height/4) {
+  } else if ((mouseX < width && mouseX > width/2+width/8 
+    && mouseY < height/2 && mouseY > height/4) && isBase) {
       isSceneFour = true;
       isBase = false;
 
@@ -206,8 +227,17 @@ function nightAnimations() {
 }
 
 function sceneTwoAnimations() {
+
+  if (transitionInProgress) {
+    colorTransition(setSky, setOcean, setSun, currentReflection);
+  }
+
   drawReflection();
-  animateBirds();
+  // animateBirds();
+  bird1.animation();
+  bird2.animation();
+  bird3.animation();
+  
 }
 
 function sceneThreeAnimations() {
@@ -246,6 +276,10 @@ function resetScene(scene) {
   isBase = true;
 
   toggleRain(false);
+
+  bird1.birdX = -50;
+  bird2.birdX = -50;
+  bird3.birdX = -50;
   
 }
 
@@ -422,57 +456,73 @@ class Raindrop {
   }
 }
 
-function animateBirds() {
-  bird1X += birdSpeed;
+class Bird {
+  constructor(x, y, width, height) {
+    this.birdX = x;
+    this.birdY = y
+    this.birdWidth = width;
+    this.birdHeight = height;
 
-  drawBird(bird1X, bird1Y);
+    this.birdYMax = this.birdY + 10;
+    this.birdYMin = this.birdY - 10
+    this.birdSpeed = random(0.75,2);
+    this.flapY = 0;
+    this.birdUp = false;
 
-  if (bird1Y == bird1YMax) {
-    birdUp = false;
-  } else if (bird1Y == bird1YMin) {
-    birdUp = true;
   }
 
-  if (birdUp) {
-    bird1Y++;
-    bird1YFlap = bird1Y - 22;
-  } else if(!birdUp) {
-    bird1Y--;
-    bird1YFlap = bird1Y + 30;
+  animation() {
+    this.birdX += this.birdSpeed
+    this.drawBird(this.birdX, this.birdY);
+
+    if (this.birdY == this.birdYMax) {
+      this.birdUp = false;
+    }
+    else if (this.birdY == this.birdYMin) {
+      this.birdUp = true;
+    }
+
+    if (this.birdUp) {
+      this.birdY++;
+      this.flapY = this.birdY - 22;
+    } else if(!this.birdUp) {
+      this.birdY--;
+      this.flapY = this.birdY + 30;
+    }
+
+    if (this.birdX > width + 50) {
+      this.birdX = -50;
+      this.birdSpeed = random(1,4);
+    }
   }
 
-  if (bird1X > width + 50) {
-    bird1X = -50;
-    birdSpeed = random(1,4);
+  drawBird() {
+    fill(255);
+    stroke(0);
+    // body
+    rect(this.birdX, this.birdY, this.birdWidth, this.birdHeight);
+
+    // head/neck
+    rect(this.birdX + this.birdWidth, this.birdY-10, 20, 32);
+
+    //wing
+    triangle(this.birdX, this.birdY, this.birdX+this.birdWidth, this.birdY, this.birdX+this.birdWidth, this.flapY);
+
+    // tail
+    triangle(this.birdX, this.birdY, this.birdX-10, this.birdY, this.birdX, this.birdY+10);
+    // rect(this.birdX-8, this.birdY, 8, 5);
+
+    // beak
+    triangle(this.birdX+this.birdWidth+20, this.birdY+10, this.birdX+this.birdWidth+20, this.birdY, this.birdX+this.birdWidth+30, this.birdY);
+
+
+
+    // eye
+    rect(this.birdX+this.birdWidth+15, this.birdY-10, 5, 10);
+
+    // eyeball
+    fill(0);
+    rect(this.birdX+48, this.birdY-5, 2, 5);
+
   }
-}
-
-function drawBird(x, y) {
-      
-  fill(255);
-  stroke(0.2);
-  rect(x, y, 30, 22); // body
-  
-  rect(x+30, y-10, 20, 32); // head/neck
-  
-  stroke(2);
-  triangle(x, y, x+30, y, x+30, bird1YFlap); // wing
-  
-  triangle(x, y, x-10, y, x, y+10) // tail
-  
-  triangle(x+50, y+10, x+50, y, x+60, y) // beak
-  
-  // eye
-  rect(x+45, y-10, 5,10);
-  
-  // eyeball
-  fill(0);
-  rect(x+48, y-5, 2,5);
-  
-  // speed tail
-  // line(x-30, y+10, x-10, y+10);
-  // line(x-20, y+15, x-10, y+15);
-  // line(x-30, y+20, x-10, y+20);
-  
-
 }
