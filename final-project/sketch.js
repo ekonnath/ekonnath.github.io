@@ -26,6 +26,8 @@ let reflectX1, reflectX2, reflectX3, reflectX4;
 let dayReflection, nightReflection; // colors
 let reflectionHeight1, reflectionHeight2, reflectionHeight3, reflectionHeight4, reflectionSpeed;
 
+let star1, star2, star3, star4, star5, star6, star7, star8, star9;
+
 let drops = [];
 let numberOfDrops = 500;
 
@@ -83,6 +85,16 @@ function setup() {
   isSceneTwo = false;
   isSceneThree = false;
   isSceneFour = false;
+
+  star1 = new Star(0.28, 0.07, 75, 10, 0 ,5, 5);
+  star2 = new Star(0.77, 0.42, -90, 0, 0, 5, 5);
+  star3 = new Star(0.85, 0.1, 80, 0, 0, 5, 5);
+  star4 = new Star(0.64, 0.24, -90, 5, 0, 5, 5);
+  star5 = new Star(0.93, 0.3, 60, 10, 0, 5, 5);
+  star6 = new Star(0.13, 0.42, -60, 0, 0, 5, 5);
+  star7 = new Star(0.32, 0.32, 37, 0, 0, 5, 5);
+  star8 = new Star(0.1, 0.17, -80, 10, 0, 5, 5);
+  star9 = new Star(0.48, 0.1, 95, 10, 0, 5, 5);
 
   for (let i = 0; i < numberOfDrops; i++) {
     drops.push(new Raindrop());
@@ -222,7 +234,17 @@ function nightAnimations() {
   drawReflection();
 
   // draw starts
-  drawStars();
+  // drawStars();
+  star1.drawStar();
+  star2.drawStar();
+  star3.drawStar();
+  star4.drawStar();
+  star5.drawStar();
+  star6.drawStar();
+  star7.drawStar();
+  star8.drawStar();
+  star9.drawStar();
+
 
 }
 
@@ -334,74 +356,6 @@ function resetReflection() {
   reflectionHeight4 = 0;
 }
 
-function drawStars() {
-  fill(stars);
-  noStroke();
-  
-  // draw star
-  push();
-  translate(width * 0.28, height * 0.07);
-  rotate(frameCount / 75.0);
-  rect(10, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.77, height * 0.42);
-  rotate(frameCount / -90.0);
-  rect(0, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.85, height * 0.1);
-  rotate(frameCount / 80.0);
-  rect(0, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.64, height * 0.24);
-  rotate(frameCount / -90.0);
-  rect(5, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.93, height * 0.3);
-  rotate(frameCount / 60.0);
-  rect(10, 0, 5, 5);
-  pop();
-
-  // draw starsssss
-  push();
-  translate(width * 0.13, height * 0.42);
-  rotate(frameCount / -60.0);
-  rect(0, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.32, height * 0.32);
-  rotate(frameCount / 37.0);
-  rect(0, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.1, height * 0.17);
-  rotate(frameCount / -80.0);
-  rect(10, 0, 5, 5);
-  pop();
-
-  // draw star
-  push();
-  translate(width * 0.48, height * 0.1);
-  rotate(frameCount / 95.0);
-  rect(10, 0, 5, 5);
-  pop();
-}
-
 function drawDisco() {
   if (!transitionInProgress) {
     for (var x = 0; x <= width; x += 50) {
@@ -426,6 +380,29 @@ function toggleRain(rainToggled) {
     }
   }
   
+}
+
+class Star {
+  constructor(translateX, translateY, rotation, rX, rY, rW, rH) {
+    this.translateX = translateX;
+    this.translateY = translateY;
+    this.rotation = rotation;
+    this.rX = rX;
+    this.rY = rY;
+    this.rW = rW;
+    this.rH = rH;
+  }
+
+  drawStar() {
+    fill(stars);
+    noStroke();
+
+    push();
+    translate(width * this.translateX, height * this.translateY);
+    rotate(frameCount / this.rotation);
+    rect(this.rX, this.rY, this.rW, this.rH);
+    pop();
+  }
 }
 
 class Raindrop {
@@ -514,8 +491,6 @@ class Bird {
 
     // beak
     triangle(this.birdX+this.birdWidth+20, this.birdY+10, this.birdX+this.birdWidth+20, this.birdY, this.birdX+this.birdWidth+30, this.birdY);
-
-
 
     // eye
     rect(this.birdX+this.birdWidth+15, this.birdY-10, 5, 10);
