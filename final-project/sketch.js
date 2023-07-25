@@ -36,7 +36,7 @@ let numberOfDrops = 500;
 
 let bird1, bird2, bird3, bird4;
 
-let boat1;
+let boat1, boat2;
 
 // fireworks
 var fireworks = [];
@@ -239,7 +239,9 @@ function mousePressed() {
     isSceneFive = true;
     isBase = false;
 
-    boat1 = new Boat(-100, height/2 + 1, random(10, 40))
+    boat1 = new Boat(0 - height*0.05, height*0.5, height*0.05, true);
+    boat2 = new Boat(width + height*0.1, height*0.6, height*0.15, false);
+    boat3 = new Boat(0 - height*0.4, height*0.8, height*0.4, true);
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
@@ -324,7 +326,9 @@ function sceneFiveAnimations() {
     colorTransition(roseSky, roseOcean, daySky, currentReflection);
   }
 
-  boat1.animation();
+  boat1.animation()
+  boat2.animation();
+  boat3.animation();
 }
 
 function sceneSixAnimations() {
@@ -466,60 +470,3 @@ function pickColor() {
   c = color(random(50, 255), random(50, 255), random(50, 255));
   return c;
 }
-
-class Boat {
-  constructor(x, y, boatWidth) {
-    this.boatX = x;
-    this.boatY = y
-    this.boatWidth = boatWidth;
-    this.boatHeight = boatWidth / 2;
-
-    this.boatYMax = this.boatY + 1;
-    this.boatYMin = this.boatY - 1
-    this.boatSpeed = random(0.1, 0.5);
-    this.boatBop = 0.2;
-    this.boatUp = false;
-
-  }
-
-  animation() {
-    this.boatX += this.boatSpeed
-    this.drawBoat(this.boatX, this.boatY);
-
-    if (this.boatY == this.boatYMax) {
-      this.boatUp = false;
-    }
-    else if (this.boatY == this.boatYMin) {
-      this.boatUp = true;
-    }
-
-    // if (this.boatUp) {
-    //   this.boatY = this.boatY+this.boatBop;
-    // } else if (!this.birdUp) {
-    //   this.boatY= this.boatY-this.boatBop;
-    // }
-
-    if (this.boat > width + 50) {
-      this.boatX = -50;
-      this.boatSpeed = random(2, 4);
-    }
-  }
-
-  drawBoat() {
-    fill(255);
-    noStroke();
-    strokeWeight(1);
-
-    fill('brown');
-    // body
-    rect(this.boatX, this.boatY, 40, -5);
-    rect(this.boatX - 5, this.boatY - 5, 50, -10);
-    rect(this.boatX + 10, this.boatY, 20, 2);
-
-
-    fill(255);
-    triangle(this.boatX+20, this.boatY-20, this.boatX+20, this.boatY-40, this.boatX+5, this.boatY-20);
-    stroke(1);
-    line(this.boatX + 20, this.boatY - 15, this.boatX + 20, this.boatY - 40);
-    }
-  }
