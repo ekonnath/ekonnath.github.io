@@ -64,9 +64,9 @@ function setup() {
   discoOcean = color(154, 71, 255);
   discoSun = color(164, 243, 245);
 
-  setSky = color(250, 209, 120, 180);
-  setOcean = color(2, 31, 105);
-  setSun = color(207, 9, 2);
+  setSun = color(247, 199, 94);
+  setOcean = color(83, 104, 176);
+  setSky = color(247, 146, 124);
   setReflection = (207, 9, 2, 100);
 
   roseSky = color(247, 193, 212);
@@ -240,8 +240,8 @@ function mousePressed() {
     isBase = false;
 
     boat1 = new Boat(0 - height*0.05, height*0.5, height*0.05, true);
-    boat2 = new Boat(width + height*0.1, height*0.6, height*0.15, false);
-    boat3 = new Boat(0 - height*0.4, height*0.8, height*0.4, true);
+    boat2 = new Boat(width + height*0.15, height*0.6, height*0.15, false);
+    boat3 = new Boat(0 - height*0.45, height*0.8, height*0.45, true);
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();

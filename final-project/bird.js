@@ -51,7 +51,7 @@ class Bird {
   
       strokeWeight(1);
   
-      fill(255)
+      fill(204, 202, 200)
       // wing
       triangle(this.birdX, this.birdY, this.birdX + this.birdWidth, this.birdY, this.birdX + this.birdWidth, this.flapY);
   
@@ -61,11 +61,10 @@ class Bird {
       // beak
       rect(this.birdX + this.birdWidth + this.birdWidth / 2.5, this.birdY, this.birdWidth * .2, this.birdHeight * .3)
   
-      // eye
+      // eye/eyeball
       rect(this.birdX + this.birdWidth + this.birdWidth / 2.5, this.birdY - this.birdHeight * 0.15,
         -this.birdWidth * 0.1,
         -this.birdHeight * 0.2);
-  
       fill(0);
       rect(this.birdX + this.birdWidth + this.birdWidth / 2.5, this.birdY - this.birdHeight * 0.15, -this.birdWidth * 0.05, -this.birdHeight * .1);
   
