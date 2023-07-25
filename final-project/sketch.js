@@ -5,9 +5,10 @@ let daySky, nightSky, dayOcean, nightOcean, daySun, nightMoon;
 let cloudySky, cloudyOcean, cloudySun, cloudyReflection;
 let discoSky, discoOcean, discoSun;
 let setSky, setOcean, setSun, setReflection;
+let roseSky, roseOcean, roseSun;
 
 // showGuidelines
-let showGuidelines; 
+let showGuidelines;
 
 // scene check
 let isBase;
@@ -15,6 +16,8 @@ let isNight;
 let isSceneTwo;
 let isSceneThree;
 let isSceneFour;
+let isSceneFive;
+let isSceneSix;
 
 // transition between day and night
 let transitionDuration = 3500; // 1000 milliseconds = 1 seconds
@@ -31,24 +34,23 @@ let star1, star2, star3, star4, star5, star6, star7, star8, star9;
 let drops = [];
 let numberOfDrops = 500;
 
-let bird1X = -50;
-let bird1Y = 100;
-let bird1YMax = 110;
-let bird1YMin = 90;
-let bird1YFlap = 0;
-let birdSpeed;
-let birdUp = false;
-
 let bird1, bird2, bird3, bird4;
+
+let boat1;
+
+// fireworks
+var fireworks = [];
+var gravity;
+var sparkColor;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  daySky = color(251, 233, 151); 
+  daySky = color(251, 233, 151);
   dayOcean = color(161, 212, 243);
   daySun = color(242, 111, 6);
   dayReflection = color(242, 111, 6, 100);
-  
-  nightSky = color(0, 38, 77); 
+
+  nightSky = color(0, 38, 77);
   nightOcean = color(0, 77, 153);
   nightMoon = color(251, 233, 151);
   nightReflection = color(251, 233, 151, 100);
@@ -62,10 +64,14 @@ function setup() {
   discoOcean = color(154, 71, 255);
   discoSun = color(164, 243, 245);
 
-  setSky = color(250, 209, 120,180);
+  setSky = color(250, 209, 120, 180);
   setOcean = color(2, 31, 105);
   setSun = color(207, 9, 2);
   setReflection = (207, 9, 2, 100);
+
+  roseSky = color(247, 193, 212);
+  roseOcean = color(189, 203, 217);
+  roseSun = color(235, 229, 144);
 
   reflectX1 = width / 4 * 1.5;
   reflectX2 = width / 4 * 1.6;
@@ -85,8 +91,10 @@ function setup() {
   isSceneTwo = false;
   isSceneThree = false;
   isSceneFour = false;
+  isSceneFive = false;
+  isSceneSix = false;
 
-  star1 = new Star(0.28, 0.07, 75, 10, 0 ,5, 5);
+  star1 = new Star(0.28, 0.07, 75, 10, 0, 5, 5);
   star2 = new Star(0.77, 0.42, -90, 0, 0, 5, 5);
   star3 = new Star(0.85, 0.1, 80, 0, 0, 5, 5);
   star4 = new Star(0.64, 0.24, -90, 5, 0, 5, 5);
@@ -100,17 +108,8 @@ function setup() {
     drops.push(new Raindrop());
   }
 
-  bird1 = new Bird(-50, height*0.1, random(10, 40));
-  bird2 = new Bird(-50, height*0.2, random(10, 40));
-  bird3 = new Bird(-50, height*0.3, random(10, 40));
-  bird4 = new Bird(-50, height*0.4, random(10, 40));
+  gravity = createVector(0, 0.15);
 
-
-  // bird1 = new Bird(-50, height/4-40, 30, 22);
-  // bird2 = new Bird(-50, height/4+20, 30, 22);
-  // bird3 = new Bird(-50, height/4-80, 30, 22);
-  
-  
 }
 
 function draw() {
@@ -131,7 +130,7 @@ function draw() {
     rectMode(CENTER);
     fill(daySun);
     rect(width - 24, 22, 25, 25);
-    
+
     fill(daySky);
     rect(width - 24, 22, 21, 21);
 
@@ -142,18 +141,18 @@ function draw() {
     text("?", width - 30, 30);
   }
 
-  
+
   // guidelines
   if (showGuidelines) {
     stroke(100);
     strokeWeight(2);
-    line(0, height/4, width, height/4);
-    
-    line(width/2-width/8, height/4, width/2-width/8, height/2);
-    line(width/2+width/8, height/4, width/2+width/8, height/2);
-    
-    line(0, height/2, width, height/2);
-    line(width/2, height/2, width/2, height);
+    line(0, height / 4, width, height / 4);
+
+    line(width / 2 - width / 8, height / 4, width / 2 - width / 8, height / 2);
+    line(width / 2 + width / 8, height / 4, width / 2 + width / 8, height / 2);
+
+    line(0, height / 2, width, height / 2);
+    line(width / 2, height / 2, width / 2, height);
 
   }
 
@@ -167,6 +166,10 @@ function draw() {
     sceneThreeAnimations();
   } else if (isSceneFour) {
     sceneFourAnimations();
+  } else if (isSceneFive) {
+    sceneFiveAnimations();
+  } else if (isSceneSix) {
+    sceneSixAnimations();
   }
 }
 
@@ -178,14 +181,15 @@ function mousePressed() {
   } else if (mouseX >= width - 30 // show guidelines
     && mouseX < width
     && mouseY <= 30
-    && mouseY > 0) {
+    && mouseY > 0
+    && isBase) {
     showGuidelines = true;
 
-  } else if ((isNight || isSceneTwo || isSceneThree || isSceneFour) && !transitionInProgress) { // reset scene trigger
+  } else if ((isNight || isSceneTwo || isSceneThree
+    || isSceneFour || isSceneFive || isSceneSix) && !transitionInProgress) { // reset scene trigger
     resetScene();
-    resetReflection();
 
-  } else if (mouseY < height/4 && isBase) { // night trigger
+  } else if (mouseY < height / 4 && isBase) { // night trigger
     isNight = true;
     isBase = false;
 
@@ -194,20 +198,25 @@ function mousePressed() {
       transitionInProgress = true;
     }
 
-  } else if ((mouseY > height/4 && mouseY < height/2
-            && mouseX > width/3 && mouseX < width/3 * 2) 
-            && isBase) { // scene 2 trigger
+  } else if ((mouseY > height / 4 && mouseY < height / 2
+    && mouseX > width / 3 && mouseX < width / 3 * 2)
+    && isBase) { // scene 2 trigger
     isSceneTwo = true;
     isBase = false;
+
+    bird1 = new Bird(-100, height * 0.1, random(10, 40));
+    bird2 = new Bird(-100, height * 0.2, random(10, 40));
+    bird3 = new Bird(-100, height * 0.3, random(10, 40));
+    bird4 = new Bird(-100, height * 0.4, random(10, 40));
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
       transitionInProgress = true;
     }
 
-  } else if ((mouseX < width/2-width/8 && mouseX > 0
-  && mouseY < height/2 && mouseY > height/4)
-  && isBase) { // scene 3 trigger
+  } else if ((mouseX < width / 2 - width / 8 && mouseX > 0
+    && mouseY < height / 2 && mouseY > height / 4)
+    && isBase) { // scene 3 trigger
     isSceneThree = true;
     isBase = false;
 
@@ -215,16 +224,38 @@ function mousePressed() {
       transitionStartTime = millis();
       transitionInProgress = true;
     }
-  } else if ((mouseX < width && mouseX > width/2+width/8 
-    && mouseY < height/2 && mouseY > height/4) && isBase) {
-      isSceneFour = true;
-      isBase = false;
+  } else if ((mouseX < width && mouseX > width / 2 + width / 8
+    && mouseY < height / 2 && mouseY > height / 4) && isBase) { // scene 4 trigger
+    isSceneFour = true;
+    isBase = false;
 
-      if (!transitionInProgress) { // trigger transition
-        transitionStartTime = millis();
-        transitionInProgress = true;
-      }
+    if (!transitionInProgress) { // trigger transition
+      transitionStartTime = millis();
+      transitionInProgress = true;
     }
+  } else if ((mouseX > 0 && mouseX < width / 2
+    && mouseY > height / 2) && isBase) {
+    // scene 5
+    isSceneFive = true;
+    isBase = false;
+
+    boat1 = new Boat(-100, height/2 + 1, random(10, 40))
+
+    if (!transitionInProgress) { // trigger transition
+      transitionStartTime = millis();
+      transitionInProgress = true;
+    }
+  } else if ((mouseX < width && mouseX > width / 2
+    && mouseY > height / 2) && isBase) {
+    // scene 6
+    isSceneSix = true;
+    isBase = false;
+
+    if (!transitionInProgress) { // trigger transition
+      transitionStartTime = millis();
+      transitionInProgress = true;
+    }
+  }
 }
 
 /* scene triggers */
@@ -248,7 +279,7 @@ function nightAnimations() {
   star7.drawStar();
   star8.drawStar();
   star9.drawStar();
-  
+
 }
 
 function sceneTwoAnimations() {
@@ -263,7 +294,7 @@ function sceneTwoAnimations() {
   bird2.animation();
   bird3.animation();
   bird4.animation();
-  
+
 }
 
 function sceneThreeAnimations() {
@@ -288,11 +319,54 @@ function sceneFourAnimations() {
   arc(width / 2, height / 2, width / 4, width / 4, PI, 0);
 }
 
+function sceneFiveAnimations() {
+  if (transitionInProgress) {
+    colorTransition(roseSky, roseOcean, daySky, currentReflection);
+  }
+
+  boat1.animation();
+}
+
+function sceneSixAnimations() {
+  if (transitionInProgress) {
+    colorTransition(discoSky, nightSky, nightMoon, currentReflection);
+  }
+
+  if (!transitionInProgress) {
+  // fireworks
+  sparkColor = pickColor();
+  xPosition = random(40, width - 40);
+
+  // chance of firework being launched
+  if (random(1) < 0.06) {
+    fireworks.push(new Firework(sparkColor, xPosition));
+  }
+  for (i = fireworks.length - 1; i >= 0; i--) {
+    fireworks[i].update();
+  
+    fireworks[i].show();
+		
+    if (fireworks[i].done()) {
+      fireworks.splice(i, 1);
+    }
+  }
+  
+    fill(nightSky);
+    noStroke();
+    rect(0, height / 2, width, height / 2);
+  }
+  
+}
+
 function resetScene(scene) {
+  resetReflection();
+
   isNight = false;
   isSceneTwo = false;
   isSceneThree = false;
   isSceneFour = false;
+  isSceneFive = false;
+  isSceneSix = false;
 
   currentSky = lerpColor(currentSky, daySky, 1);
   currentOcean = lerpColor(currentSky, dayOcean, 1);
@@ -306,7 +380,8 @@ function resetScene(scene) {
   bird1.birdX = -50;
   bird2.birdX = -50;
   bird3.birdX = -50;
-  
+  bird4.birdX = -50;
+
 }
 
 /* functional animations */
@@ -348,7 +423,7 @@ function drawReflection() {
     reflectionHeight3 += reflectionSpeed;
   }
 
-  if (reflectionHeight3 >= height / 8  && reflectionHeight4 < height / 8) {
+  if (reflectionHeight3 >= height / 8 && reflectionHeight4 < height / 8) {
     reflectionHeight4 += reflectionSpeed;
   }
 }
@@ -363,10 +438,10 @@ function resetReflection() {
 function drawDisco() {
   if (!transitionInProgress) {
     for (var x = 0; x <= width; x += 50) {
-      for (var y = 0; y <= height/2; y += 50) {
-          fill (random(255), 0, random(255));
-          ellipse(x, y, 25, 25);
-        }
+      for (var y = 0; y <= height / 2; y += 50) {
+        fill(random(255), 0, random(255));
+        ellipse(x, y, 25, 25);
+      }
     }
   }
 }
@@ -383,146 +458,68 @@ function toggleRain(rainToggled) {
       drops[i].resetRain();
     }
   }
-  
+
 }
 
-class Star {
-  constructor(translateX, translateY, rotation, rX, rY, rW, rH) {
-    this.translateX = translateX;
-    this.translateY = translateY;
-    this.rotation = rotation;
-    this.rX = rX;
-    this.rY = rY;
-    this.rW = rW;
-    this.rH = rH;
-  }
-
-  drawStar() {
-    fill(stars);
-    noStroke();
-
-    push();
-    translate(width * this.translateX, height * this.translateY);
-    rotate(frameCount / this.rotation);
-    rect(this.rX, this.rY, this.rW, this.rH);
-    pop();
-  }
+function pickColor() {
+  // All fireworks get a random color
+  c = color(random(50, 255), random(50, 255), random(50, 255));
+  return c;
 }
 
-class Raindrop {
-  constructor() {
-    this.x = random(width);
-    this.y = random(-400, -100);
-    this.speed = random(2, 5);
-    this.length = random(10, 20);
-  }
+class Boat {
+  constructor(x, y, boatWidth) {
+    this.boatX = x;
+    this.boatY = y
+    this.boatWidth = boatWidth;
+    this.boatHeight = boatWidth / 2;
 
-  fall() {
-    this.y += this.speed;
-    if (this.y > height) {
-      this.y = random(-400, -100);
-      this.x = random(width);
-    }
-  }
-
-  display() {
-    strokeCap(SQUARE);
-    stroke(0, 100, 200); // Blue color
-    strokeWeight(1.2);
-    line(this.x, this.y, this.x, this.y + this.length);
-  }
-
-  resetRain() {
-    this.y = random(-400, -100);
-  }
-}
-
-class Bird {
-  constructor(x, y, birdWidth) {
-    this.birdX = x;
-    this.birdY = y
-    this.birdWidth = birdWidth;
-    this.birdHeight = birdWidth/2;
-
-    this.birdYMax = this.birdY + 10;
-    this.birdYMin = this.birdY - 10
-    this.birdSpeed = random(0.75,2);
-    this.flapY = 0;
-    this.birdUp = false;
+    this.boatYMax = this.boatY + 1;
+    this.boatYMin = this.boatY - 1
+    this.boatSpeed = random(0.1, 0.5);
+    this.boatBop = 0.2;
+    this.boatUp = false;
 
   }
 
   animation() {
-    this.birdX += this.birdSpeed
-    this.drawBird(this.birdX, this.birdY);
+    this.boatX += this.boatSpeed
+    this.drawBoat(this.boatX, this.boatY);
 
-    if (this.birdY == this.birdYMax) {
-      this.birdUp = false;
+    if (this.boatY == this.boatYMax) {
+      this.boatUp = false;
     }
-    else if (this.birdY == this.birdYMin) {
-      this.birdUp = true;
-    }
-
-    if (this.birdUp) {
-      this.birdY++;
-      this.flapY = this.birdY - this.birdHeight*1.4;
-    } else if(!this.birdUp) {
-      this.birdY--;
-      this.flapY = this.birdY + this.birdHeight*1.7;
+    else if (this.boatY == this.boatYMin) {
+      this.boatUp = true;
     }
 
-    if (this.birdX > width + 50) {
-      this.birdX = -50;
-      this.birdSpeed = random(1,4);
+    // if (this.boatUp) {
+    //   this.boatY = this.boatY+this.boatBop;
+    // } else if (!this.birdUp) {
+    //   this.boatY= this.boatY-this.boatBop;
+    // }
+
+    if (this.boat > width + 50) {
+      this.boatX = -50;
+      this.boatSpeed = random(2, 4);
     }
   }
 
-  drawBird() {
+  drawBoat() {
     fill(255);
-    stroke(0);
-    
-    // body
-    rect(this.birdX, this.birdY, this.birdWidth, this.birdHeight);
-    
-    // head/neck
-    rect(this.birdX + this.birdWidth, this.birdY - this.birdHeight/2, this.birdWidth/2.5, this.birdHeight * 1.5)
-    
-    // wing
-    triangle(this.birdX, this.birdY, this.birdX+this.birdWidth, this.birdY, this.birdX+this.birdWidth, this.flapY);
-    
-    // tail
-    rect(this.birdX, this.birdY, this.birdWidth * -.2, this.birdHeight * 0.3);
-    
-    // beak
-    rect(this.birdX + this.birdWidth + this.birdWidth/2.5, this.birdY, this.birdWidth*.2, this.birdHeight*.3)
-    
-    // eye
-    
-  
-    rect(this.birdX + this.birdWidth + this.birdWidth/2.5,   this.birdY - this.birdHeight*0.15, 
-         -this.birdWidth*0.1,
-         -this.birdHeight*0.2);
-    
-    fill(0);
-    rect(this.birdX + this.birdWidth + this.birdWidth/2.5,   this.birdY - this.birdHeight*0.15, -this.birdWidth*0.05, -this.birdHeight*.1);
-    
-   if (this.birdSpeed >= 3) {
-    line(this.birdX - this.birdWidth*0.9,
-         this.birdY + this.birdHeight*0.4, 
-         this.birdX - this.birdWidth*0.4, 
-         this.birdY + this.birdHeight*0.4);
-     
-     line(this.birdX - this.birdWidth*0.7,
-         this.birdY + this.birdHeight*0.6, 
-         this.birdX - this.birdWidth*0.4, 
-         this.birdY + this.birdHeight*0.6);
-     
-     line(this.birdX - this.birdWidth*0.9,
-         this.birdY + this.birdHeight*0.8, 
-         this.birdX - this.birdWidth*0.4, 
-         this.birdY + this.birdHeight*0.8);
-     
-  }
+    noStroke();
+    strokeWeight(1);
 
+    fill('brown');
+    // body
+    rect(this.boatX, this.boatY, 40, -5);
+    rect(this.boatX - 5, this.boatY - 5, 50, -10);
+    rect(this.boatX + 10, this.boatY, 20, 2);
+
+
+    fill(255);
+    triangle(this.boatX+20, this.boatY-20, this.boatX+20, this.boatY-40, this.boatX+5, this.boatY-20);
+    stroke(1);
+    line(this.boatX + 20, this.boatY - 15, this.boatX + 20, this.boatY - 40);
+    }
   }
-}
