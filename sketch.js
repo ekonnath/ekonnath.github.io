@@ -43,7 +43,22 @@ var fireworks = [];
 var gravity;
 var sparkColor;
 
+var three005,lateNight, palisades, poke, popThieves, retro, sober;
+
+function preload() {
+  three005 = loadSound('assets/3005.wav');
+  lateNight = loadSound('assets/late_night_in_kauai.wav');
+  palisades = loadSound('assets/palisades.wav');
+  poke = loadSound('assets/poke.wav');
+  popThieves = loadSound('assets/pop_thieves.wav');
+  retro = loadSound('assets/retro.wav');
+  sober = loadSound('assets/sober.wav');
+}
+
 function setup() {
+
+  // three005 = loadSound('assets/3005.wav');
+
   createCanvas(windowWidth, windowHeight);
   daySky = color(251, 233, 151);
   dayOcean = color(161, 212, 243);
@@ -171,6 +186,7 @@ function draw() {
   } else if (isSceneSix) {
     sceneSixAnimations();
   }
+
 }
 
 function mousePressed() {
@@ -178,9 +194,9 @@ function mousePressed() {
   if (showGuidelines) { // reset guidelines
     showGuidelines = false;
 
-  } else if (mouseX >= width - 30 // show guidelines
+  } else if (mouseX >= width * 0.9 // show guidelines
     && mouseX < width
-    && mouseY <= 30
+    && mouseY <= height * 0.03
     && mouseY > 0
     && isBase) {
     showGuidelines = true;
@@ -198,11 +214,15 @@ function mousePressed() {
       transitionInProgress = true;
     }
 
+    lateNight.play();
+    
   } else if ((mouseY > height / 4 && mouseY < height / 2
     && mouseX > width / 3 && mouseX < width / 3 * 2)
     && isBase) { // scene 2 trigger
     isSceneTwo = true;
     isBase = false;
+
+    sober.play();
 
     bird1 = new Bird(-100, height * 0.1, random(10, 40));
     bird2 = new Bird(-100, height * 0.2, random(10, 40));
@@ -220,6 +240,8 @@ function mousePressed() {
     isSceneThree = true;
     isBase = false;
 
+    retro.play();
+
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
       transitionInProgress = true;
@@ -228,6 +250,8 @@ function mousePressed() {
     && mouseY < height / 2 && mouseY > height / 4) && isBase) { // scene 4 trigger
     isSceneFour = true;
     isBase = false;
+
+    popThieves.play();
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
@@ -239,8 +263,10 @@ function mousePressed() {
     isSceneFive = true;
     isBase = false;
 
+    palisades.play();
+
     boat1 = new Boat(0 - height*0.05, height*0.5, height*0.05, true);
-    boat2 = new Boat(width + height*0.15, height*0.6, height*0.15, false);
+    boat2 = new Boat(width + height*0.01, height*0.6, height*0.15, false);
     boat3 = new Boat(0 - height*0.45, height*0.8, height*0.45, true);
 
     if (!transitionInProgress) { // trigger transition
@@ -252,6 +278,8 @@ function mousePressed() {
     // scene 6
     isSceneSix = true;
     isBase = false;
+
+    poke.play();
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
@@ -381,10 +409,13 @@ function resetScene(scene) {
 
   toggleRain(false);
 
-  bird1.birdX = -50;
-  bird2.birdX = -50;
-  bird3.birdX = -50;
-  bird4.birdX = -50;
+  lateNight.stop();
+  sober.stop();
+  retro.stop();
+  popThieves.stop();
+  palisades.stop();
+  poke.stop();
+
 
 }
 
