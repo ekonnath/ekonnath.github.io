@@ -214,7 +214,7 @@ function mousePressed() {
       transitionInProgress = true;
     }
 
-    lateNight.play();
+    lateNight.loop();
     
   } else if ((mouseY > height / 4 && mouseY < height / 2
     && mouseX > width / 3 && mouseX < width / 3 * 2)
@@ -222,7 +222,7 @@ function mousePressed() {
     isSceneTwo = true;
     isBase = false;
 
-    sober.play();
+    sober.loop();
 
     bird1 = new Bird(-100, height * 0.1, random(10, 40));
     bird2 = new Bird(-100, height * 0.2, random(10, 40));
@@ -240,7 +240,7 @@ function mousePressed() {
     isSceneThree = true;
     isBase = false;
 
-    retro.play();
+    retro.loop();
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
@@ -251,7 +251,7 @@ function mousePressed() {
     isSceneFour = true;
     isBase = false;
 
-    popThieves.play();
+    popThieves.loop();
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
@@ -263,7 +263,7 @@ function mousePressed() {
     isSceneFive = true;
     isBase = false;
 
-    palisades.play();
+    palisades.loop();
 
     boat1 = new Boat(0 - height*0.05, height*0.5, height*0.05, true);
     boat2 = new Boat(width + height*0.01, height*0.6, height*0.15, false);
@@ -279,7 +279,7 @@ function mousePressed() {
     isSceneSix = true;
     isBase = false;
 
-    poke.play();
+    poke.loop();
 
     if (!transitionInProgress) { // trigger transition
       transitionStartTime = millis();
