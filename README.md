@@ -15,7 +15,7 @@ The following additional sources were adjusted for use in this project.
 
 1. **["Random fireworks"](https://editor.p5js.org/jnsjknn/sketches/BJV1qkbME)**, created by [jnsjknn](https://editor.p5js.org/jnsjknn/sketches)
 2. **["Disco balls"](https://editor.p5js.org/samchasan/sketches/B1kKXcAcZ)**, created by [samchasan](https://editor.p5js.org/samchasan/sketches)
-3. Rain drops, created by ChatGPT (and the uncited open source libraries/references/repos scraped by OpenAI
+3. **Rain drops**, created by ChatGPT (and the uncited open source libraries/references/repos scraped by OpenAI)
 
 ## Music Credits
 The following songs were used in conjunction with this art piece, in order of appearance. You may also click the "?" icon in the top right corner when running the application.
