@@ -36,7 +36,7 @@ let numberOfDrops = 500;
 
 let bird1, bird2, bird3, bird4;
 
-let boat1, boat2;
+let boat1, boat2, boat3;
 
 // fireworks
 var fireworks = [];
@@ -58,7 +58,7 @@ function preload() {
 function setup() {
 
   createCanvas(windowWidth, windowHeight);
-  pixelDensity(10);
+  // createCanvas(297,420);
   daySky = color(251, 233, 151);
   dayOcean = color(161, 212, 243);
   daySun = color(242, 111, 6);
@@ -263,6 +263,10 @@ function mousePressed() {
     isBase = false;
 
     palisades.loop();
+
+    // boat1 = new Boat(width*0.69, height*0.5, height*0.05, true);
+    // boat2 = new Boat(width*0.75, height*0.6, height*0.15, false);
+    // boat3 = new Boat(width*-0.1, height*0.8, height*0.45, true);
 
     boat1 = new Boat(0 - height*0.05, height*0.5, height*0.05, true);
     boat2 = new Boat(width + height*0.01, height*0.6, height*0.15, false);
