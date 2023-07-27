@@ -43,7 +43,7 @@ var fireworks = [];
 var gravity;
 var sparkColor;
 
-var three005,lateNight, palisades, poke, popThieves, retro, sober;
+var lateNight, palisades, poke, popThieves, retro, sober;
 
 function preload() {
   three005 = loadSound('assets/3005.wav');
@@ -57,9 +57,8 @@ function preload() {
 
 function setup() {
 
-  // three005 = loadSound('assets/3005.wav');
-
   createCanvas(windowWidth, windowHeight);
+  pixelDensity(10);
   daySky = color(251, 233, 151);
   dayOcean = color(161, 212, 243);
   daySun = color(242, 111, 6);
@@ -285,7 +284,13 @@ function mousePressed() {
       transitionStartTime = millis();
       transitionInProgress = true;
     }
-  }
+  } 
+}
+
+function keyPressed() {
+  if (key == 's') {
+    saveCanvas('kauai_interactive', 'jpg');
+  } 
 }
 
 /* scene triggers */
